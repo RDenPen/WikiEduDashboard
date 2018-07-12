@@ -1,5 +1,4 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import createReactClass from 'create-react-class';
 import PropTypes from 'prop-types';
 import moment from 'moment';
@@ -84,10 +83,15 @@ const Upload = createReactClass({
       );
     }
 
+    let credit = '<div class="results-loading"> &nbsp; &nbsp; </div>';
+    if (this.props.upload.credit) {
+      credit = this.props.upload.credit;
+    }
+
     if (this.props.view === LIST_VIEW) {
       usage = `${this.props.upload.usage_count} ${I18n.t('uploads.usage_count')}`;
       return (
-        <tr className="upload">
+        <tr className="upload list-view">
           <td>
             <a href={this.props.upload.url} target="_blank">
               <img src={this.state.imageFile} alt={fileName} />
@@ -100,6 +104,7 @@ const Upload = createReactClass({
           <td className="desktop-only-tc">{uploader}</td>
           <td className="desktop-only-tc">{this.props.upload.usage_count}</td>
           <td className="desktop-only-tc">{moment(this.props.upload.uploaded_at).format('YYYY-MM-DD   h:mm A')}</td>
+          <td className="desktop-only-tc" dangerouslySetInnerHTML={{ __html: credit }} />
         </tr>
       );
     }
@@ -138,8 +143,4 @@ const Upload = createReactClass({
   },
 });
 
-const mapStateToProps = state => ({
-  view: state.uploads.view,
-});
-
-export default connect(mapStateToProps)(Upload);
+export default (Upload);

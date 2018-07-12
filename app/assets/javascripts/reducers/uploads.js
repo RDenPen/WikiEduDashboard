@@ -1,4 +1,5 @@
-import { RECEIVE_UPLOADS, SORT_UPLOADS, SET_VIEW, GALLERY_VIEW, FILTER_UPLOADS } from '../constants';
+import _ from 'lodash';
+import { RECEIVE_UPLOADS, SORT_UPLOADS, SET_VIEW, GALLERY_VIEW, FILTER_UPLOADS, SET_UPLOAD_METADATA } from '../constants';
 import { sortByKey } from '../utils/model_utils';
 
 const initialState = {
@@ -6,6 +7,8 @@ const initialState = {
   sortKey: null,
   view: GALLERY_VIEW,
   selectedFilters: [],
+  fetchState: false,
+
 };
 
 const SORT_DESCENDING = {
@@ -31,6 +34,34 @@ export default function uploads(state = initialState, action) {
         ...state,
         uploads: sortedModel.newModels,
         sortKey: sortedModel.newKey,
+      };
+    }
+    case SET_UPLOAD_METADATA: {
+      let fetchedData;
+      _.forEach(action.data, data => {
+        if (data.query) {
+          fetchedData = { ...fetchedData, ...data.query.pages };
+        }
+      });
+      const updatedUploads = state.uploads.map(upload => {
+        if (fetchedData && fetchedData[upload.id]) {
+          if (fetchedData[upload.id].imageinfo[0].extmetadata.Credit) {
+            upload.credit = fetchedData[upload.id].imageinfo[0].extmetadata.Credit.value;
+          }
+          if (!fetchedData[upload.id].imageinfo[0].extmetadata.Credit) {
+            upload.credit = "Not Found";
+          }
+          if (!upload.thumburl) {
+            upload.thumburl = fetchedData[upload.id].imageinfo[0].thumburl;
+          }
+          upload.fetchState = true;
+        }
+        return upload;
+      });
+      return {
+        ...state,
+        uploads: updatedUploads,
+        fetchState: true,
       };
     }
     case SET_VIEW: {

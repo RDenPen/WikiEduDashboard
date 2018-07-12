@@ -1,5 +1,4 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import createReactClass from 'create-react-class';
 import PropTypes from 'prop-types';
 import moment from 'moment';
@@ -22,12 +21,6 @@ const Upload = createReactClass({
 
   componentWillMount() {
     this.setImageFile();
-  },
-
-  componentWillReceiveProps(nextProps) {
-    if (!this.state.imageFile) {
-      this.setState({ imageFile: nextProps.thumburl });
-    }
   },
 
   setImageFile() {
@@ -91,8 +84,8 @@ const Upload = createReactClass({
     }
 
     let credit = '<div class="results-loading"> &nbsp; &nbsp; </div>';
-    if (this.props.credit) {
-      credit = this.props.credit;
+    if (this.props.upload.credit) {
+      credit = this.props.upload.credit;
     }
 
     if (this.props.view === LIST_VIEW) {
@@ -150,8 +143,4 @@ const Upload = createReactClass({
   },
 });
 
-const mapStateToProps = state => ({
-  view: state.uploads.view,
-});
-
-export default connect(mapStateToProps)(Upload);
+export default (Upload);

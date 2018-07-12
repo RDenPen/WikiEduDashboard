@@ -33,14 +33,14 @@ export const receiveUploads = (courseId) => dispatch => {
 };
 
 const fetchUploadMetadata = (uploads) => {
-  let url = `https://commons.wikimedia.org/w/api.php?action=query&format=json&titles=`;
+  let url = `https://commons.wikimedia.org/w/api.php?action=query&format=json&pageids=`;
   _.forEach(uploads, upload => {
-    url = `${url}File:${encodeURIComponent(upload.file_name)}|`;
+    url = `${url}${encodeURIComponent(upload.id)}|`;
   });
   url = url.slice(0, -1);
   return new Promise((res, rej) => {
     return $.ajax({
-      type: 'GET',
+      dataType: 'jsonp',
       url: `${url}&prop=imageinfo&iiprop=extmetadata|url&iiextmetadatafilter=Credit&iiurlwidth=640px`,
       success(data) {
         return res(data);
@@ -55,6 +55,7 @@ const fetchUploadMetadata = (uploads) => {
 
 export const setUploadMetadata = (uploadsList) => dispatch => {
   const list = uploadsList.filter(upload => !upload.fetchState);
+  if (list.length === 0) { return; }
   const promises = _.chunk(list, 25).map(uploads => fetchUploadMetadata(uploads));
   return (
     Promise.all(promises)
